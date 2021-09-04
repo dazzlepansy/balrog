@@ -1,0 +1,122 @@
+#!/usr/bin/env sh
+
+STORE="$HOME/.password-store"
+
+ACTION='show'
+COPY=0
+OTP=0
+LENGTH=32
+INPLACE=0
+CHARACTERS='[:alnum:][:punct:]'
+TMP_FILE="$HOME/.balrogtmp"
+
+# Loop through all the arguments and set flags/options.
+while [ "$#" -gt 0 ] ; do
+	case "$1" in
+		-c|--clip)
+			COPY=1
+			shift
+			;;
+		-i|--in-place)
+			INPLACE=1
+			shift
+			;;
+		-n|--no-symbols)
+			CHARACTERS='[:alnum:]'
+			shift
+			;;
+		edit)
+			ACTION='edit'
+			shift
+			;;
+		generate)
+			ACTION='generate'
+			shift
+			;;
+		otp)
+			OTP=1
+			shift
+			;;
+		show)
+			ACTION='show'
+			shift
+			;;
+		*)
+			# Treat anything unidentified as the name of the password.
+			KEY="$1"
+			shift
+
+			# When generating a key, it may immediately be followed by
+			# an integer to set the length. The third line here
+			# verifies it's an integer.
+			[ "$ACTION" = 'generate' ] &&
+				[ -n "$1" ] &&
+				printf %d "$1" > /dev/null 2>&1 &&
+				LENGTH="$1" &&
+				shift
+			;;
+	esac
+done
+
+KEY_FILE="$STORE/$KEY.gpg"
+
+# Dynamically changing the value of ACTION allow us to simulate fall-throughs.
+while [ -n "$ACTION" ] ; do
+	case "$ACTION" in
+		edit)
+			# Decrypt to a temporary file, allow the user to edit it,
+			# then re-encrypt and delete the temp file.
+			gpg2 --decrypt --quiet "$KEY_FILE" --output "$TMP_FILE"
+			"${EDITOR:-vi}" "$TMP_FILE"
+			gpg2 --quiet --encrypt --default-recipient-self --output "$KEY_FILE" 2> /dev/null
+			rm "$TMP_FILE"
+
+			ACTION=''
+			;;
+		generate)
+			# Create the path.
+			mkdir -p "${KEY_FILE%/*}"
+
+			# If generating in-place, get all but the first line of the existing file.
+			(
+				[ "$INPLACE" -eq 1 ] &&
+					gpg2 --quiet --decrypt "$KEY_FILE" |
+					sed '1d'
+			) |
+				# Get the value of the new password from /dev/urandom.
+				(
+					tr -d -c "$CHARACTERS" < /dev/urandom |
+						dd bs="$LENGTH" count=1 2> /dev/null &&
+						# Terminate the password with a line ending.
+						echo &&
+						# Append the rest of the existing file, if any.
+						cat
+				) |
+				gpg2 --quiet --encrypt --default-recipient-self --output "$KEY_FILE" 2> /dev/null
+
+			# Fall through to the "show" logic.
+			ACTION='show'
+			;;
+		show)
+			# Decrypt, extract the secret from the otpauth line, and pass it to oathtool.
+			if [ "$OTP" -eq 1 ] ; then
+				gpg2 --decrypt --quiet "$KEY_FILE" |
+					grep 'otpauth' |
+					sed 's/.*secret=\([[:alnum:]]*\).*/\1/' |
+					oathtool --base32 --totp - |
+					([ "$COPY" -eq 1 ] && xclip -selection clipboard || cat)
+			# Decrypt and get the first line.
+			else
+				gpg2 --decrypt --quiet "$KEY_FILE" |
+					([ "$COPY" -eq 1 ] && head -n 1 | xclip -selection clipboard || cat)
+			fi
+
+			# Launch a background job to clear the clipboard in 30 seconds.
+			[ "$COPY" -eq 1 ] &&
+				sleep 30 &&
+				xclip -selection clipboard < /dev/null &
+
+			ACTION=''
+			;;
+	esac
+done
