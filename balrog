@@ -7,7 +7,8 @@ COPY=0
 OTP=0
 LENGTH=32
 INPLACE=0
-CHARACTERS='[:alnum:][:punct:]'
+# Specify valid characters the long way because character classes are locale-dependent.
+CHARACTERS='a-zA-Z0-9!"#$%&'\''()*+,-./:;<=>?@[]^_‘{|}~\\'
 TMP_FILE="$HOME/.balrogtmp"
 
 # Loop through all the arguments and set flags/options.
@@ -22,7 +23,7 @@ while [ "$#" -gt 0 ] ; do
 			shift
 			;;
 		-n|--no-symbols)
-			CHARACTERS='[:alnum:]'
+			CHARACTERS='a-zA-Z0-9'
 			shift
 			;;
 		edit)
@@ -102,7 +103,7 @@ while [ -n "$ACTION" ] ; do
 			if [ "$OTP" -eq 1 ] ; then
 				gpg2 --decrypt --quiet "$KEY_FILE" |
 					grep 'otpauth' |
-					sed 's/.*secret=\([[:alnum:]]*\).*/\1/' |
+					sed 's/.*secret=\([a-zA-Z0-9]*\).*/\1/' |
 					oathtool --base32 --totp - |
 					([ "$COPY" -eq 1 ] && xclip -selection clipboard || cat)
 			# Decrypt and get the first line.
