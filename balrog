@@ -65,12 +65,22 @@ KEY_FILE="$STORE/$KEY.gpg"
 while [ -n "$ACTION" ] ; do
 	case "$ACTION" in
 		edit)
+			# Create the path.
+			mkdir -p "${KEY_FILE%/*}"
+
 			# Decrypt to a temporary file, allow the user to edit it,
 			# then re-encrypt and delete the temp file.
-			gpg2 --decrypt --quiet "$KEY_FILE" --output "$TMP_FILE"
+			[ -f "$KEY_FILE" ] &&
+				gpg2 --quiet --output "$TMP_FILE" --decrypt "$KEY_FILE"
+
+			# Allow the user to edit a temporary file,
+			# then encrypt it and delete the temp file.
 			"${EDITOR:-vi}" "$TMP_FILE"
-			gpg2 --quiet --encrypt --default-recipient-self --output "$KEY_FILE" 2> /dev/null
-			rm "$TMP_FILE"
+
+			[ -f "$TMP_FILE" ] &&
+				gpg2 --quiet --yes --encrypt --default-recipient-self --output "$KEY_FILE" "$TMP_FILE" 2> /dev/null &&
+				rm "$TMP_FILE" ||
+				echo "No changes..."
 
 			ACTION=''
 			;;
