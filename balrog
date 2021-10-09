@@ -111,10 +111,12 @@ while [ -n "$ACTION" ] ; do
 		show)
 			# Decrypt, extract the secret from the otpauth line, and pass it to oathtool.
 			if [ "$OTP" -eq 1 ] ; then
-				gpg2 --decrypt --quiet "$KEY_FILE" |
+				# Store the TOTP secret in a variable.
+				# Not all oathtool versions take input from stdin.
+				secret="$(gpg2 --decrypt --quiet "$KEY_FILE" |
 					grep 'otpauth' |
-					sed 's/.*secret=\([a-zA-Z0-9]*\).*/\1/' |
-					oathtool --base32 --totp - |
+					sed 's/.*secret=\([a-zA-Z0-9]*\).*/\1/')"
+				oathtool --base32 --totp "$secret" |
 					([ "$COPY" -eq 1 ] && xclip -selection clipboard || cat)
 			# Decrypt and get the first line.
 			else
