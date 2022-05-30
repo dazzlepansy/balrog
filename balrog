@@ -121,7 +121,11 @@ while [ -n "$ACTION" ] ; do
 			# Decrypt and get the first line.
 			else
 				gpg2 --decrypt --quiet "$KEY_FILE" |
-					([ "$COPY" -eq 1 ] && head -n 1 | xclip -selection clipboard || cat)
+					([ "$COPY" -eq 1 ] &&
+						head -n 1 |
+						tr -d '\n' |
+						xclip -selection clipboard ||
+						cat)
 			fi
 
 			# Launch a background job to clear the clipboard in 30 seconds.
