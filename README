@@ -1,0 +1,47 @@
+# Balrog
+
+A partial drop-in replacement for [pass](https://www.passwordstore.org/) and
+[pass-otp](https://github.com/tadfisher/pass-otp) written in POSIX shell.
+
+## What is this?
+
+There is no particularly good reason to want to replace pass and pass-otp,
+which are excellent utilities, but I fancied the idea of writing a simple
+drop-in replacement for them written in POSIX-compliant shell. There were a
+few hiccups along the way, but it largely works for my own purposes. Users
+should be warned against using this in a production context, but I use it
+happily and wanted to share it for educational or reference purposes.
+
+Why is it called Balrog? Because "you shall not pass." Haaaaah.
+
+## Dependencies
+
+* A POSIX shell. The `balrog` script is strictly POSIX compliant to
+  ensure maximum portability.
+* [xclip](https://github.com/astrand/xclip). Copies the password to the
+  clipboard.
+* [OATH Toolkit](https://www.nongnu.org/oath-toolkit/) (optional). Used for
+  handling one-time passwords.
+
+## Features Implemented
+
+Balrog is entirely compatible with pass and pass-otp, but only implements a
+subset of their features. The following command-line options are implemented:
+
+* -c|--clip
+  Copy to clipboard.
+* -i|--in-place
+  When generating a password, replace only the first line of the file instead
+  of writing over it.
+* -n|--no-symbols
+  Generate passwords with only alphanumeric characters.
+
+The following actions are implemented:
+
+* edit
+* generate
+* otp
+* show
+
+Use the exact same way you currently use pass. See the documentation of pass
+and pass-otp for details.
