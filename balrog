@@ -68,12 +68,13 @@ while [ -n "$ACTION" ] ; do
 			# Create the path.
 			mkdir -p "${KEY_FILE%/*}"
 
-			# Decrypt to a temporary file, allow the user to edit it,
-			# then re-encrypt and delete the temp file.
+			# Decrypt to a temporary file.
+			# Set restrictive permissions on the tmp file just in case.
 			[ -f "$KEY_FILE" ] &&
-				gpg2 --quiet --output "$TMP_FILE" --decrypt "$KEY_FILE"
+				gpg2 --quiet --output "$TMP_FILE" --decrypt "$KEY_FILE" &&
+				chmod 600 "$TMP_FILE"
 
-			# Allow the user to edit a temporary file,
+			# Allow the user to edit the temporary file,
 			# then encrypt it and delete the temp file.
 			"${EDITOR:-vi}" "$TMP_FILE"
 
