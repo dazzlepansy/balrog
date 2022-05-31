@@ -78,9 +78,14 @@ while [ -n "$ACTION" ] ; do
 			"${EDITOR:-vi}" "$TMP_FILE"
 
 			[ -f "$TMP_FILE" ] &&
-				gpg2 --quiet --yes --encrypt --default-recipient-self --output "$KEY_FILE" "$TMP_FILE" 2> /dev/null &&
-				rm "$TMP_FILE" ||
-				echo "No changes..."
+				(
+					gpg2 --quiet --yes --encrypt \
+						--default-recipient-self \
+						--output "$KEY_FILE" "$TMP_FILE" \
+						2> /dev/null ||
+					echo "No changes..." ;
+					rm "$TMP_FILE"
+				)
 
 			ACTION=''
 			;;
