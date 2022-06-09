@@ -11,6 +11,11 @@ INPLACE=0
 CHARACTERS='a-zA-Z0-9!"#$%&'\''()*+,-./:;<=>?@[]^_‘{|}~\\'
 TMP_FILE="$HOME/.balrogtmp"
 
+# Identify the system's clipboard utility.
+[ "$XDG_SESSION_TYPE" = 'x11' ] &&
+	CLIP='xclip -selection clipboard' ||
+	CLIP='wl-copy'
+
 # Loop through all the arguments and set flags/options.
 while [ "$#" -gt 0 ] ; do
 	case "$1" in
@@ -121,21 +126,21 @@ while [ -n "$ACTION" ] ; do
 					grep 'otpauth' |
 					sed 's/.*secret=\([a-zA-Z0-9]*\).*/\1/' |
 					oathtool --base32 --totp - |
-					([ "$COPY" -eq 1 ] && xclip -selection clipboard || cat)
+					([ "$COPY" -eq 1 ] && $CLIP || cat)
 			# Decrypt and get the first line.
 			else
 				gpg2 --decrypt --quiet "$KEY_FILE" |
 					([ "$COPY" -eq 1 ] &&
 						head -n 1 |
 						tr -d '\n' |
-						xclip -selection clipboard ||
+						$CLIP ||
 						cat)
 			fi
 
 			# Launch a background job to clear the clipboard in 30 seconds.
 			[ "$COPY" -eq 1 ] &&
 				sleep 30 &&
-				xclip -selection clipboard < /dev/null &
+				$CLIP < /dev/null &
 
 			ACTION=''
 			;;

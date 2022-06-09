@@ -18,8 +18,8 @@ Why is it called Balrog? Because "you shall not pass." Haaaaah.
 
 * A POSIX shell. The `balrog` script is strictly POSIX compliant to
   ensure maximum portability.
-* [xclip](https://github.com/astrand/xclip). Copies the password to the
-  clipboard.
+* [xclip](https://github.com/astrand/xclip) on X11 or wl-copy on Wayland.
+  Copies the password to the clipboard.
 * [OATH Toolkit](https://www.nongnu.org/oath-toolkit/) (optional). Used for
   handling one-time passwords.
 
