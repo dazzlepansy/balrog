@@ -126,7 +126,10 @@ while [ -n "$ACTION" ] ; do
 					grep 'otpauth' |
 					sed 's/.*secret=\([a-zA-Z0-9]*\).*/\1/' |
 					oathtool --base32 --totp - |
-					([ "$COPY" -eq 1 ] && $CLIP || cat)
+					([ "$COPY" -eq 1 ] &&
+						tr -d '\n' |
+						$CLIP ||
+						cat)
 			# Decrypt and get the first line.
 			else
 				gpg2 --decrypt --quiet "$KEY_FILE" |
