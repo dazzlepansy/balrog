@@ -12,9 +12,9 @@ CHARACTERS='a-zA-Z0-9!"#$%&'\''()*+,-./:;<=>?@[]^_‘{|}~\\'
 TMP_FILE="$HOME/.balrogtmp"
 
 # Identify the system's clipboard utility.
-[ "$XDG_SESSION_TYPE" = 'x11' ] &&
-	CLIP='xclip -selection clipboard' ||
-	CLIP='wl-copy'
+[ -n "$WAYLAND_DISPLAY" ] &&
+	CLIP='waycopy' ||
+	CLIP='xclip -selection clipboard'
 
 # Loop through all the arguments and set flags/options.
 while [ "$#" -gt 0 ] ; do
