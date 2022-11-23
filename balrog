@@ -8,7 +8,7 @@ OTP=0
 LENGTH=32
 INPLACE=0
 # Specify valid characters the long way because character classes are locale-dependent.
-CHARACTERS='a-zA-Z0-9!"#$%&'\''()*+,-./:;<=>?@[]^_‘{|}~\\'
+CHARACTERS='a-zA-Z0-9!"#$%&'\''()*+,./:;<=>?@[]^_{|}~\\'
 TMP_FILE="$HOME/.balrogtmp"
 
 # Identify the system's clipboard utility.
