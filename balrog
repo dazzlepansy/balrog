@@ -27,6 +27,10 @@ case "$1" in
 		ACTION='generate'
 		shift
 		;;
+	ls)
+		ACTION='ls'
+		shift
+		;;
 	otp)
 		OTP=1
 		shift
@@ -34,6 +38,9 @@ case "$1" in
 	show)
 		ACTION='show'
 		shift
+		;;
+	*)
+		ACTION='ls'
 		;;
 esac
 
@@ -124,6 +131,19 @@ while [ -n "$ACTION" ] ; do
 
 			# Fall through to the "show" logic.
 			ACTION='show'
+			;;
+		ls)
+			if [ -e "$KEY_FILE" ] ; then
+				# Show the password if the key file exists.
+				ACTION='show'
+			else
+				# Otherwise find all files in the path specified.
+				# `tree` is not a POSIX utility so I'm just using `find` here.
+				find "$STORE/$KEY" -type f |
+					sed "s|$STORE/||"
+				ACTION=''
+			fi
+
 			;;
 		show)
 			# Decrypt, extract the secret from the otpauth line, and pass it to oathtool.
