@@ -16,7 +16,29 @@ TMP_FILE="$HOME/.balrogtmp"
 	CLIP='waycopy' ||
 	CLIP='xclip -selection clipboard'
 
+# The first argument should be the command.
+
+case "$1" in
+	edit)
+		ACTION='edit'
+		shift
+		;;
+	generate)
+		ACTION='generate'
+		shift
+		;;
+	otp)
+		OTP=1
+		shift
+		;;
+	show)
+		ACTION='show'
+		shift
+		;;
+esac
+
 # Loop through all the arguments and set flags/options.
+
 while [ "$#" -gt 0 ] ; do
 	case "$1" in
 		-c|--clip)
@@ -29,22 +51,6 @@ while [ "$#" -gt 0 ] ; do
 			;;
 		-n|--no-symbols)
 			CHARACTERS='a-zA-Z0-9'
-			shift
-			;;
-		edit)
-			ACTION='edit'
-			shift
-			;;
-		generate)
-			ACTION='generate'
-			shift
-			;;
-		otp)
-			OTP=1
-			shift
-			;;
-		show)
-			ACTION='show'
 			shift
 			;;
 		*)
