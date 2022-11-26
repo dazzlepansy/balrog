@@ -23,6 +23,10 @@ case "$1" in
 		ACTION='edit'
 		shift
 		;;
+	find|search)
+		ACTION='find'
+		shift
+		;;
 	generate)
 		ACTION='generate'
 		shift
@@ -105,6 +109,12 @@ while [ -n "$ACTION" ] ; do
 					echo "No changes..." ;
 					rm "$TMP_FILE"
 				)
+
+			ACTION=''
+			;;
+		find)
+			find $STORE -type f -path "*$KEY*" |
+				sed "s|$STORE/||"
 
 			ACTION=''
 			;;
