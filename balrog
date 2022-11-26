@@ -27,7 +27,7 @@ case "$1" in
 		ACTION='generate'
 		shift
 		;;
-	ls)
+	ls|list)
 		ACTION='ls'
 		shift
 		;;
