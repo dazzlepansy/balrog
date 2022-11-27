@@ -114,7 +114,7 @@ while [ -n "$ACTION" ] ; do
 			;;
 		find)
 			find $STORE -type f -path "*$KEY*" |
-				sed "s|$STORE/||"
+				sed -e "s|$STORE/||" -e 's/\.gpg$//'
 
 			ACTION=''
 			;;
@@ -150,7 +150,7 @@ while [ -n "$ACTION" ] ; do
 				# Otherwise find all files in the path specified.
 				# `tree` is not a POSIX utility so I'm just using `find` here.
 				find "$STORE/$KEY" -type f |
-					sed "s|$STORE/||"
+					sed -e "s|$STORE/||" -e 's/\.gpg$//'
 				ACTION=''
 			fi
 
